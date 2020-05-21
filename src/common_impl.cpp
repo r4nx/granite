@@ -6,13 +6,28 @@
 #include <iterator>
 #include <vector>
 
-CommonImpl::ConsoleDisplayDriver::ConsoleDisplayDriver(char pixel_char_)
-    : pixel_char(pixel_char_)
+CommonImpl::ConsoleDisplayDriver::ConsoleDisplayDriver(
+    char     pixel_char_,
+    unsigned render_threshold_)
+    : pixel_char(pixel_char_),
+      render_threshold(render_threshold_)
 {}
 
 void CommonImpl::ConsoleDisplayDriver::render(const std::vector<bool> &display)
 {
-// Clear screen
+    /*
+     * You will ask me - what's this? This is nothing but what
+     * will save you from epilepsy attack lol. Also, without this
+     * console refreshes very often and slows down the VM.
+     *
+     * This should be definitely done in another thread. Let it be TO-DO.
+     */
+    if (++render_counter >= render_threshold)
+        render_counter = 0;
+    else
+        return;
+
+        // Clear screen
 #if defined _WIN32
     system("cls");
 #elif defined(__LINUX__) || defined(__gnu_linux__) || defined(__linux__)

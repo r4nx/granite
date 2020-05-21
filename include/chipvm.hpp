@@ -63,7 +63,6 @@ private:
     decltype(display)::iterator get_display_pixel(uint8_t x, uint8_t y);
 
     std::unique_ptr<std::mt19937> random_gen;
-    unsigned                      render_counter = 0; // debug
 };
 
 /*

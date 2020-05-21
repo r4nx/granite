@@ -60,16 +60,13 @@ bool ChipVM::work()
     const instr_t instr = fetch_instruction();
     inc_pc();
 
-    /*std::cout << "PC: " << std::hex << pc << " | Instruction: " << instr
-              << std::endl;*/
+    /*
+    std::cout << "PC: " << std::hex << pc << " | Instruction: " << instr
+              << std::endl;
+    */
 
     process_instruction(instr);
-
-    // Debug
-    if (++render_counter >= 50) {
-        display_driver->render(display);
-        render_counter = 0;
-    }
+    display_driver->render(display);
 
     return true;
 }
