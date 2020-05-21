@@ -1,0 +1,90 @@
+#include "chipvm.hpp"
+#include "common_impl.hpp"
+#include "windows_impl.hpp"
+
+#include <cerrno>
+#include <chrono>
+#include <cstring>
+#include <fstream>
+#include <functional>
+#include <iostream>
+#include <iterator>
+#include <memory>
+#include <thread>
+
+bool load_image(std::shared_ptr<ChipVM> vm, const std::string &file_name)
+{
+    try {
+        using ram_cell_t       = decltype(vm->ram)::value_type;
+        using input_iterator_t = std::istreambuf_iterator<char>;
+
+        std::ifstream image_file;
+
+        image_file.exceptions(
+            image_file.exceptions() | std::ios::failbit | std::ios::badbit);
+        image_file.open(file_name, std::ios::binary | std::ios::ate);
+
+        // Check whether the image size is less than RAM size
+        auto               ram_size   = vm->ram.size() * sizeof(ram_cell_t);
+        decltype(ram_size) image_size = image_file.tellg();
+
+        if (image_size > ram_size - C8Consts::USER_SPACE) {
+            std::cerr << "Image doesn't fit the RAM." << std::endl;
+            return false;
+        }
+
+        image_file.seekg(0, std::ios::beg);
+
+        // I am a paranoid lol
+        static_assert(
+            sizeof(input_iterator_t::value_type) == sizeof(ram_cell_t),
+            "istreambuf_iterator type have to be the same length as VM's RAM "
+            "cell (this should have never happened, basically it's an "
+            "assertion that "
+            "sizeof(char) == sizeof(uint_8)).");
+
+        // Finally load image to RAM, starting from USER_SPACE
+        std::copy(
+            input_iterator_t(image_file),
+            input_iterator_t(),
+            vm->ram.begin() + C8Consts::USER_SPACE);
+    }
+    catch (const std::ios_base::failure &) {
+        std::cerr << "Failed to read image file:\n\t" << std::strerror(errno)
+                  << std::endl;
+        return false;
+    }
+
+    return true;
+}
+
+int main(int argc, char *argv[])
+{
+    if (argc < 2) {
+        std::cout << "Please specify chip8 image as an argument." << std::endl;
+        return 0;
+    }
+
+    // Initialize drivers and the virtual machine itself
+    auto display_driver =
+        std::make_shared<CommonImpl::ConsoleDisplayDriver>('W');
+    auto keyboard_driver = std::make_shared<WindowsImpl::KeyboardDriver>();
+    auto sound_driver    = std::make_shared<WindowsImpl::SoundDriver>();
+    auto vm =
+        std::make_shared<ChipVM>(display_driver, keyboard_driver, sound_driver);
+
+    if (!load_image(vm, argv[1]))
+        return 1;
+
+    // Work on the VM
+    std::thread vm_thread([vm] {
+        while (vm->work()) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(5));
+        }
+    });
+
+    std::cout << "Loaded the image" << std::endl;
+    vm_thread.join();
+
+    return 0;
+}
