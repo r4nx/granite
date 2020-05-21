@@ -10,6 +10,7 @@
 #include <iostream>
 #include <iterator>
 #include <memory>
+#include <stdexcept>
 #include <thread>
 
 bool load_image(std::shared_ptr<ChipVM> vm, const std::string &file_name)
@@ -78,8 +79,11 @@ int main(int argc, char *argv[])
 
     // Work on the VM
     std::thread vm_thread([vm] {
-        while (vm->work()) {
-            std::this_thread::sleep_for(std::chrono::milliseconds(5));
+        try {
+            while (vm->work()) {}
+        }
+        catch (const std::runtime_error &ex) {
+            std::cout << "Runtime error:\n\t" << ex.what() << std::endl;
         }
     });
 

@@ -39,17 +39,7 @@ bool WindowsImpl::KeyboardDriver::is_pressed(uint8_t key)
         return false;
     }
 
-    auto state = GetAsyncKeyState(key_mapping[key]) & (1U << 15);
-
-    // Debug
-    /*
-    std::stringstream dbg_msg;
-    dbg_msg << "Checked for '" << std::hex << static_cast<uint32_t>(key)
-            << "' key, it was " << (state ? "" : "not ") << "pressed";
-    MessageBoxA(nullptr, dbg_msg.str().c_str(), "Debug message", MB_OK);
-    */
-
-    return state;
+    return GetAsyncKeyState(key_mapping[key]) & (1U << 15);
 }
 
 void WindowsImpl::SoundDriver::beep_for(uint32_t duration)

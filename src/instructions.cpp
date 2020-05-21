@@ -328,6 +328,12 @@ void ChipVM::process_instruction(const instr_t instr)
                 case 0x0A:
                     break;
 
+                /*
+                 * It seems that timers are broken, as delay timer didn't pass
+                 * some kind of test and Tetris didn't work correctly. I hope
+                 * I'll fix them some day. TO-DO.
+                 */
+
                 // LD DT, Vx
                 case 0x15:
                 {
