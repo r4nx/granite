@@ -21,6 +21,7 @@
 
 #include "chipvm.hpp"
 
+#include <string>
 #include <vector>
 
 namespace CommonImpl {
@@ -37,6 +38,9 @@ private:
     const unsigned render_threshold = 0;
     unsigned       render_counter   = 0;
 };
+
+enum class MessageType { info, error };
+void print_msg(const std::string &msg, MessageType type = MessageType::info);
 
 } // namespace CommonImpl
 

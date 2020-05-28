@@ -25,11 +25,13 @@
 #include <cstring>
 #include <fstream>
 #include <functional>
-#include <iostream>
 #include <iterator>
 #include <memory>
 #include <stdexcept>
+#include <string>
 #include <thread>
+
+using CommonImpl::MessageType;
 
 bool load_image(std::shared_ptr<ChipVM> vm, const std::string &file_name)
 {
@@ -48,7 +50,7 @@ bool load_image(std::shared_ptr<ChipVM> vm, const std::string &file_name)
         decltype(ram_size) image_size = image_file.tellg();
 
         if (image_size > ram_size - C8Consts::USER_SPACE) {
-            std::cerr << "Image doesn't fit the RAM." << std::endl;
+            print_msg("Image doesn't fit the RAM.", MessageType::error);
             return false;
         }
 
@@ -69,8 +71,10 @@ bool load_image(std::shared_ptr<ChipVM> vm, const std::string &file_name)
             vm->ram.begin() + C8Consts::USER_SPACE);
     }
     catch (const std::ios_base::failure &) {
-        std::cerr << "Failed to read image file:\n\t" << std::strerror(errno)
-                  << std::endl;
+        CommonImpl::print_msg(
+            std::string("Failed to read image file:\n\t")
+                + std::strerror(errno),
+            MessageType::error);
         return false;
     }
 
@@ -79,8 +83,11 @@ bool load_image(std::shared_ptr<ChipVM> vm, const std::string &file_name)
 
 int main(int argc, char *argv[])
 {
+
     if (argc < 2) {
-        std::cout << "Please specify chip8 image as an argument." << std::endl;
+        print_msg(
+            "Please specify chip8 image as an argument.",
+            MessageType::error);
         return 0;
     }
 
@@ -101,11 +108,12 @@ int main(int argc, char *argv[])
             while (vm->work()) {}
         }
         catch (const std::runtime_error &ex) {
-            std::cout << "Runtime error:\n\t" << ex.what() << std::endl;
+            print_msg(
+                std::string("Runtime error:\n\t") + ex.what(),
+                MessageType::error);
         }
     });
 
-    std::cout << "Loaded the image" << std::endl;
     vm_thread.join();
 
     return 0;

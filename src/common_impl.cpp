@@ -18,10 +18,15 @@
 
 #include "common_impl.hpp"
 
+#ifdef _WIN32
+#include <Windows.h>
+#endif
+
 #include <algorithm>
 #include <cstdlib>
 #include <iostream>
 #include <iterator>
+#include <string>
 #include <vector>
 
 CommonImpl::ConsoleDisplayDriver::ConsoleDisplayDriver(
@@ -62,4 +67,18 @@ void CommonImpl::ConsoleDisplayDriver::render(const std::vector<bool> &display)
             std::cout << std::endl;
         }
     }
+}
+
+void CommonImpl::print_msg(const std::string &msg, MessageType type)
+{
+#ifdef _WIN32
+    MessageBoxA(
+        nullptr,
+        msg.c_str(),
+        "granite",
+        MB_OK
+            | (type == MessageType::error ? MB_ICONERROR : MB_ICONINFORMATION));
+#else
+    (type == MessageType::error ? std::cerr : std::cout) << msg << std::endl;
+#endif
 }
