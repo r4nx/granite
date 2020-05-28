@@ -13,7 +13,13 @@ if (NOT SFML_FOUND)
     message(FATAL_ERROR "SFML was not found")
 endif()
 
-add_executable(granite "")
+if (WIN32)
+    set(GRANITE_SUBSYSTEM WIN32)
+else()
+    set(GRANITE_SUBSYSTEM "")
+endif()
+
+add_executable(granite "${GRANITE_SUBSYSTEM}")
 target_compile_features(granite PRIVATE cxx_std_20)
 target_link_libraries(granite PRIVATE sfml-window sfml-graphics)
 
