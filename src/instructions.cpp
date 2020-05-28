@@ -426,6 +426,11 @@ void ChipVM::process_instruction(const instr_t instr)
                         n /= 10;
                     }
 
+                    // Hundreds, tens and ones
+                    constexpr decltype(bcd)::size_type digits = 3;
+                    while (bcd.size() < digits)
+                        bcd.push_back(0);
+
                     if (i_reg + bcd.size() >= ram.size())
                         throw std::runtime_error("Segmentation fault (too "
                                                  "large BCD representation)");
