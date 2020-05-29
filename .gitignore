@@ -31,5 +31,8 @@
 *.out
 *.app
 
+# Debug info
+*.pdb
+
 # Building directory
 build/
