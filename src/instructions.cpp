@@ -443,31 +443,35 @@ void ChipVM::process_instruction(const instr_t instr)
 
                 // LD [I], Vx
                 case 0x55:
+                {
+                    // + 1 is needed because specification says to save/load
+                    // registers V0 THROUGH Vx (inclusively)
+                    const uint8_t regs_count = reg + 1;
+
                     // Assuming register size equals to RAM cell size
-                    if (i_reg + reg >= ram.size())
+                    if (i_reg + regs_count >= ram.size())
                         throw std::runtime_error(
                             "Segmentation fault (registers doesn't fit the "
                             "RAM)");
 
-                    std::copy(
-                        regs.begin(),
-                        regs.begin() + reg,
-                        ram.begin() + i_reg);
+                    std::copy_n(regs.begin(), regs_count, ram.begin() + i_reg);
                     break;
+                }
 
                 // LD Vx, [I]
                 case 0x65:
+                {
+                    const uint8_t regs_count = reg + 1;
+
                     // Assuming register size equals to RAM cell size
-                    if (i_reg + reg >= ram.size())
+                    if (i_reg + regs_count >= ram.size())
                         throw std::runtime_error(
                             "Segmentation fault (tried to load registers "
                             "outside the RAM)");
 
-                    std::copy(
-                        ram.begin() + i_reg,
-                        ram.begin() + i_reg + reg,
-                        regs.begin());
+                    std::copy_n(ram.begin() + i_reg, regs_count, regs.begin());
                     break;
+                }
 
                 default:
                     goto unk_instruction;
