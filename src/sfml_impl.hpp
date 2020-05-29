@@ -6,6 +6,7 @@
 #include <SFML/Graphics.hpp>
 
 #include <memory>
+#include <mutex>
 #include <string>
 #include <vector>
 
@@ -17,7 +18,10 @@ struct Dimensions {
 
 class DisplayDriver : public IDisplayDriver {
 public:
-    DisplayDriver(const std::string &title, Dimensions dim_ = {800, 600});
+    DisplayDriver(
+        const std::string &title,
+        Dimensions         dim    = {800, 600},
+        float              scale_ = 10);
 
     /*
      * Blocking function, that processes event loop and rendering
@@ -27,12 +31,11 @@ public:
     void render(const std::vector<bool> &display) override;
 
 private:
+    float            scale;
     sf::RenderWindow window;
-    Dimensions       dim;
 
-    std::unique_ptr<sf::Uint8[]> pixels;
-    std::unique_ptr<sf::Texture> texture;
-    std::unique_ptr<sf::Sprite>  sprite;
+    std::vector<sf::RectangleShape> pixels;
+    std::mutex                      render_mutex;
 };
 } // namespace SFMLImpl
 
