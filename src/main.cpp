@@ -98,11 +98,16 @@ int main(int argc, char *argv[])
         return 0;
     }
 
-    SFMLImpl::Dimensions dim{C8Consts::DISPLAY_WIDTH, C8Consts::DISPLAY_HEIGHT};
+    unsigned             scale = 10;
+    SFMLImpl::Dimensions dim{
+        C8Consts::DISPLAY_WIDTH * scale,
+        C8Consts::DISPLAY_HEIGHT * scale};
 
     // Initialize drivers and the virtual machine itself
-    auto display_driver =
-        std::make_shared<SFMLImpl::DisplayDriver>("granite", dim);
+    auto display_driver = std::make_shared<SFMLImpl::DisplayDriver>(
+        "granite",
+        dim,
+        static_cast<float>(scale));
     auto keyboard_driver = std::make_shared<WindowsImpl::KeyboardDriver>();
     auto sound_driver    = std::make_shared<WindowsImpl::SoundDriver>();
     auto vm =
@@ -116,7 +121,7 @@ int main(int argc, char *argv[])
     std::thread       vm_thread([vm, &vm_working] {
         try {
             while (vm_working && vm->work()) {
-                std::this_thread::sleep_for(std::chrono::milliseconds(2));
+                std::this_thread::sleep_for(std::chrono::milliseconds(3));
             }
         }
         catch (const std::runtime_error &ex) {
