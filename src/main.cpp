@@ -18,8 +18,15 @@
 
 #include "chipvm.hpp"
 #include "common_impl.hpp"
+#include "sfml_impl.hpp"
 #include "windows_impl.hpp"
 
+#ifdef _WIN32
+#include <Windows.h>
+#include <cstdlib> // for __argc and __argv
+#endif
+
+#include <atomic>
 #include <cerrno>
 #include <chrono>
 #include <cstring>
@@ -91,9 +98,11 @@ int main(int argc, char *argv[])
         return 0;
     }
 
+    SFMLImpl::Dimensions dim{C8Consts::DISPLAY_WIDTH, C8Consts::DISPLAY_HEIGHT};
+
     // Initialize drivers and the virtual machine itself
     auto display_driver =
-        std::make_shared<CommonImpl::ConsoleDisplayDriver>('W');
+        std::make_shared<SFMLImpl::DisplayDriver>("granite", dim);
     auto keyboard_driver = std::make_shared<WindowsImpl::KeyboardDriver>();
     auto sound_driver    = std::make_shared<WindowsImpl::SoundDriver>();
     auto vm =
@@ -103,9 +112,12 @@ int main(int argc, char *argv[])
         return 1;
 
     // Work on the VM
-    std::thread vm_thread([vm] {
+    std::atomic<bool> vm_working = true;
+    std::thread       vm_thread([vm, &vm_working] {
         try {
-            while (vm->work()) {}
+            while (vm_working && vm->work()) {
+                std::this_thread::sleep_for(std::chrono::milliseconds(2));
+            }
         }
         catch (const std::runtime_error &ex) {
             print_msg(
@@ -114,7 +126,21 @@ int main(int argc, char *argv[])
         }
     });
 
+    display_driver->work();
+
+    vm_working = false;
     vm_thread.join();
 
     return 0;
 }
+
+#ifdef WIN32
+int WINAPI WinMain(
+    HINSTANCE instance,
+    HINSTANCE prev_instance,
+    PSTR      cmd_line,
+    int       cmd_show)
+{
+    return main(__argc, __argv);
+}
+#endif

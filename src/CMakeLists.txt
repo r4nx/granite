@@ -12,4 +12,7 @@ target_sources(granite
         windows_impl.cpp
         windows_impl.hpp
 
+        sfml_impl.cpp
+        sfml_impl.hpp
+
         utils.hpp)
