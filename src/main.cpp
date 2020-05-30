@@ -101,13 +101,21 @@ int main(int argc, char *argv[])
         C8Consts::DISPLAY_WIDTH * scale,
         C8Consts::DISPLAY_HEIGHT * scale};
 
-    // Initialize drivers and the virtual machine itself
+    // Initialize drivers
     auto display_driver = std::make_shared<SFMLImpl::DisplayDriver>(
         "granite",
         dim,
         static_cast<float>(scale));
-    auto keyboard_driver = std::make_shared<WindowsImpl::KeyboardDriver>();
-    auto sound_driver    = std::make_shared<WindowsImpl::SoundDriver>();
+    auto keyboard_driver = std::make_shared<SFMLImpl::KeyboardDriver>();
+
+    display_driver->subscribe_for_key_press(std::bind(
+        &SFMLImpl::KeyboardDriver::press_callback,
+        keyboard_driver,
+        std::placeholders::_1));
+
+    auto sound_driver = std::make_shared<WindowsImpl::SoundDriver>();
+
+    // Initialize virtual machine
     auto vm =
         std::make_shared<ChipVM>(display_driver, keyboard_driver, sound_driver);
 
@@ -123,8 +131,6 @@ int main(int argc, char *argv[])
             }
 
             vm->display_driver->shutdown();
-            vm->keyboard_driver->shutdown();
-            vm->sound_driver->shutdown();
         }
         catch (const std::runtime_error &ex) {
             print_msg(
@@ -135,8 +141,11 @@ int main(int argc, char *argv[])
 
     display_driver->work();
 
-    // Shutdown the VM if display driver finishes its work
+    // Shutdown the VM and other drivers if display driver finishes its work
     vm->working = false;
+    vm->keyboard_driver->shutdown();
+    vm->sound_driver->shutdown();
+
     vm_thread.join();
 
     return 0;

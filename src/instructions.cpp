@@ -327,8 +327,9 @@ void ChipVM::process_instruction(const instr_t instr)
                     regs[reg] = dt.load();
                     break;
 
-                // LD Vx, K (TO-DO)
+                // LD Vx, K
                 case 0x0A:
+                    regs[reg] = keyboard_driver->wait_for_key();
                     break;
 
                 // LD DT, Vx
