@@ -154,3 +154,10 @@ uint8_t KeyboardDriver::wait_for_key()
 
     return last_pressed_key;
 }
+
+void KeyboardDriver::shutdown()
+{
+    cv.notify_one();
+
+    IDriver::shutdown();
+}

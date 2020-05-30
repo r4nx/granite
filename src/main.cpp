@@ -131,8 +131,6 @@ int main(int argc, char *argv[])
             }
 
             vm->display_driver->shutdown();
-            vm->keyboard_driver->shutdown();
-            vm->sound_driver->shutdown();
         }
         catch (const std::runtime_error &ex) {
             print_msg(
@@ -143,8 +141,11 @@ int main(int argc, char *argv[])
 
     display_driver->work();
 
-    // Shutdown the VM if display driver finishes its work
+    // Shutdown the VM and other drivers if display driver finishes its work
     vm->working = false;
+    vm->keyboard_driver->shutdown();
+    vm->sound_driver->shutdown();
+
     vm_thread.join();
 
     return 0;

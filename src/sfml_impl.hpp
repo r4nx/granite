@@ -69,6 +69,7 @@ public:
 
     bool    is_pressed(uint8_t key) override;
     uint8_t wait_for_key() override;
+    void    shutdown() override;
 
 private:
     std::condition_variable cv;
