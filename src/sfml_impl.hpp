@@ -23,8 +23,9 @@
 
 #include <SFML/Graphics.hpp>
 
+#include <condition_variable>
 #include <cstdint>
-#include <memory>
+#include <functional>
 #include <mutex>
 #include <string>
 #include <vector>
@@ -36,6 +37,8 @@ struct Dimensions {
 };
 
 class DisplayDriver : public IDisplayDriver {
+    using key_press_callback_t = std::function<void(sf::Keyboard::Key)>;
+
 public:
     DisplayDriver(
         const std::string &title,
@@ -46,6 +49,7 @@ public:
      * Blocking function, that processes event loop and rendering
      */
     void work();
+    void subscribe_for_key_press(key_press_callback_t callback);
 
     void render(const std::vector<bool> &display) override;
 
@@ -55,11 +59,22 @@ private:
 
     std::vector<sf::RectangleShape> pixels;
     std::mutex                      render_mutex;
+
+    std::vector<key_press_callback_t> key_press_subscribers;
 };
 
 class KeyboardDriver : public IKeyboardDriver {
 public:
-    bool is_pressed(uint8_t key) override;
+    void press_callback(sf::Keyboard::Key key);
+
+    bool    is_pressed(uint8_t key) override;
+    uint8_t wait_for_key() override;
+
+private:
+    std::condition_variable cv;
+    std::mutex              key_press_mut;
+
+    uint8_t last_pressed_key = 0;
 };
 } // namespace SFMLImpl
 

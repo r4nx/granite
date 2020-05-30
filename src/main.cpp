@@ -101,13 +101,21 @@ int main(int argc, char *argv[])
         C8Consts::DISPLAY_WIDTH * scale,
         C8Consts::DISPLAY_HEIGHT * scale};
 
-    // Initialize drivers and the virtual machine itself
+    // Initialize drivers
     auto display_driver = std::make_shared<SFMLImpl::DisplayDriver>(
         "granite",
         dim,
         static_cast<float>(scale));
     auto keyboard_driver = std::make_shared<SFMLImpl::KeyboardDriver>();
-    auto sound_driver    = std::make_shared<WindowsImpl::SoundDriver>();
+
+    display_driver->subscribe_for_key_press(std::bind(
+        &SFMLImpl::KeyboardDriver::press_callback,
+        keyboard_driver,
+        std::placeholders::_1));
+
+    auto sound_driver = std::make_shared<WindowsImpl::SoundDriver>();
+
+    // Initialize virtual machine
     auto vm =
         std::make_shared<ChipVM>(display_driver, keyboard_driver, sound_driver);
 

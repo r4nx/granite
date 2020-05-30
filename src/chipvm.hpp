@@ -106,7 +106,8 @@ public:
 
 class IKeyboardDriver : public IDriver {
 public:
-    virtual bool is_pressed(uint8_t key) = 0;
+    virtual bool    is_pressed(uint8_t key) = 0;
+    virtual uint8_t wait_for_key()          = 0;
 };
 
 class ISoundDriver : public IDriver {

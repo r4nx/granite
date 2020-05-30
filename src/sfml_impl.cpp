@@ -18,15 +18,34 @@
 
 #include "sfml_impl.hpp"
 
+#include <algorithm>
 #include <array>
 #include <cstdint>
-#include <memory>
 #include <mutex>
 #include <stdexcept>
 #include <string>
 #include <vector>
 
 using namespace SFMLImpl;
+using KB = sf::Keyboard;
+
+const static std::array<KB::Key, 16> key_mapping{
+    KB::Numpad0,  // 0
+    KB::Numpad7,  // 1
+    KB::Numpad8,  // 2
+    KB::Numpad9,  // 3
+    KB::Numpad4,  // 4
+    KB::Numpad5,  // 5
+    KB::Numpad6,  // 6
+    KB::Numpad1,  // 7
+    KB::Numpad2,  // 8
+    KB::Numpad3,  // 9
+    KB::Divide,   // A
+    KB::Multiply, // B
+    KB::Subtract, // C
+    KB::Add,      // D
+    KB::Equal,    // E
+    KB::Period};  // F
 
 DisplayDriver::DisplayDriver(
     const std::string &window_title,
@@ -47,8 +66,16 @@ void DisplayDriver::work()
         sf::Event event;
 
         while (window.pollEvent(event)) {
-            if (event.type == sf::Event::Closed)
-                window.close();
+            switch (event.type) {
+                case sf::Event::KeyPressed:
+                    for (const auto &callback : key_press_subscribers)
+                        callback(event.key.code);
+                    break;
+
+                case sf::Event::Closed:
+                    window.close();
+                    break;
+            }
         }
 
         window.clear(sf::Color::White);
@@ -61,6 +88,11 @@ void DisplayDriver::work()
 
         window.display();
     }
+}
+
+void DisplayDriver::subscribe_for_key_press(key_press_callback_t callback)
+{
+    key_press_subscribers.push_back(callback);
 }
 
 void DisplayDriver::render(const std::vector<bool> &display)
@@ -90,25 +122,20 @@ void DisplayDriver::render(const std::vector<bool> &display)
 
 // ----------------------------------------------------------------------------
 
-using KB = sf::Keyboard;
+void KeyboardDriver::press_callback(sf::Keyboard::Key key)
+{
+    auto key_it = std::find(key_mapping.cbegin(), key_mapping.cend(), key);
 
-const static std::array<KB::Key, 16> key_mapping{
-    KB::Numpad0,  // 0
-    KB::Numpad7,  // 1
-    KB::Numpad8,  // 2
-    KB::Numpad9,  // 3
-    KB::Numpad4,  // 4
-    KB::Numpad5,  // 5
-    KB::Numpad6,  // 6
-    KB::Numpad1,  // 7
-    KB::Numpad2,  // 8
-    KB::Numpad3,  // 9
-    KB::Divide,   // A
-    KB::Multiply, // B
-    KB::Subtract, // C
-    KB::Add,      // D
-    KB::Equal,    // E
-    KB::Period};  // F
+    if (key_it == key_mapping.end())
+        return;
+
+    {
+        std::scoped_lock lk(key_press_mut);
+        last_pressed_key = std::distance(key_mapping.cbegin(), key_it);
+    }
+
+    cv.notify_one();
+}
 
 bool KeyboardDriver::is_pressed(uint8_t key)
 {
@@ -118,4 +145,12 @@ bool KeyboardDriver::is_pressed(uint8_t key)
             + ")");
 
     return sf::Keyboard::isKeyPressed(key_mapping[key]);
+}
+
+uint8_t KeyboardDriver::wait_for_key()
+{
+    std::unique_lock<std::mutex> lk(key_press_mut);
+    cv.wait(lk);
+
+    return last_pressed_key;
 }
