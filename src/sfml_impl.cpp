@@ -30,22 +30,22 @@ using namespace SFMLImpl;
 using KB = sf::Keyboard;
 
 const static std::array<KB::Key, 16> key_mapping{
-    KB::Numpad0,  // 0
-    KB::Numpad7,  // 1
-    KB::Numpad8,  // 2
-    KB::Numpad9,  // 3
-    KB::Numpad4,  // 4
-    KB::Numpad5,  // 5
-    KB::Numpad6,  // 6
-    KB::Numpad1,  // 7
-    KB::Numpad2,  // 8
-    KB::Numpad3,  // 9
-    KB::Divide,   // A
-    KB::Multiply, // B
-    KB::Subtract, // C
-    KB::Add,      // D
-    KB::Equal,    // E
-    KB::Period};  // F
+    KB::Numpad0, // 0
+    KB::Numpad7, // 1
+    KB::Numpad8, // 2
+    KB::Numpad9, // 3
+    KB::Numpad4, // 4
+    KB::Numpad5, // 5
+    KB::Numpad6, // 6
+    KB::Numpad1, // 7
+    KB::Numpad2, // 8
+    KB::Numpad3, // 9
+    KB::A,       // A
+    KB::D,       // B
+    KB::W,       // C
+    KB::S,       // D
+    KB::Q,       // E
+    KB::E};      // F
 
 DisplayDriver::DisplayDriver(
     const std::string &window_title,
