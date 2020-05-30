@@ -19,9 +19,14 @@
 #ifndef UTILS_HPP_
 #define UTILS_HPP_
 
+#ifdef _WIN32
+#include <Windows.h>
+#else
+#include <iostream>
+#endif
+
 #include <cstdint>
 #include <cstdio>
-#include <memory>
 #include <stdexcept>
 #include <string>
 
@@ -38,6 +43,21 @@ std::string format_string(const std::string &format, Args... args)
     std::snprintf(buf.get(), size, format.c_str(), args...);
 
     return std::string(buf.get(), buf.get() + size - 1);
+}
+
+enum class MessageType { info, error };
+void print_msg(const std::string &msg, MessageType type)
+{
+#ifdef _WIN32
+    MessageBoxA(
+        nullptr,
+        msg.c_str(),
+        "granite",
+        MB_OK
+            | (type == MessageType::error ? MB_ICONERROR : MB_ICONINFORMATION));
+#else
+    (type == MessageType::error ? std::cerr : std::cout) << msg << std::endl;
+#endif
 }
 
 #endif /* !UTILS_HPP_ */

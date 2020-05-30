@@ -17,8 +17,8 @@
  */
 
 #include "chipvm.hpp"
-#include "common_impl.hpp"
 #include "sfml_impl.hpp"
+#include "utils.hpp"
 #include "windows_impl.hpp"
 
 #ifdef _WIN32
@@ -37,8 +37,6 @@
 #include <stdexcept>
 #include <string>
 #include <thread>
-
-using CommonImpl::MessageType;
 
 bool load_image(std::shared_ptr<ChipVM> vm, const std::string &file_name)
 {
@@ -78,7 +76,7 @@ bool load_image(std::shared_ptr<ChipVM> vm, const std::string &file_name)
             vm->ram.begin() + C8Consts::USER_SPACE);
     }
     catch (const std::ios_base::failure &) {
-        CommonImpl::print_msg(
+        print_msg(
             std::string("Failed to read image file:\n\t")
                 + std::strerror(errno),
             MessageType::error);

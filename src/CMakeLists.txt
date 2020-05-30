@@ -6,9 +6,6 @@ target_sources(granite
         chipvm.hpp
         instructions.cpp
 
-        common_impl.cpp
-        common_impl.hpp
-
         windows_impl.cpp
         windows_impl.hpp
 
