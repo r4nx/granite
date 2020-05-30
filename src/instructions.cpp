@@ -200,7 +200,7 @@ void ChipVM::process_instruction(const instr_t instr)
                     const uint8_t reg_x = (instr & 0x0F00) >> 8,
                                   reg_y = (instr & 0x00F0) >> 4;
 
-                    if (reg_x != reg_y)
+                    if (regs[reg_x] != regs[reg_y])
                         inc_pc();
                     break;
                 }
@@ -267,6 +267,7 @@ void ChipVM::process_instruction(const instr_t instr)
              * iterator if desired pixel is out of range.
              */
 
+            regs[0xF] = 0;
             while (src != src_beg + count) {
                 dst = get_display_pixel(x, y);
 
