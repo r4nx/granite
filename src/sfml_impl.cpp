@@ -41,7 +41,7 @@ DisplayDriver::DisplayDriver(
 
 void DisplayDriver::work()
 {
-    while (window.isOpen()) {
+    while (working && window.isOpen()) {
         sf::Event event;
 
         while (window.pollEvent(event)) {

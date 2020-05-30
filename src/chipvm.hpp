@@ -58,7 +58,7 @@ public:
      *
      * \return Has VM finished its work
      */
-    bool work();
+    void cycle();
 
     std::vector<uint8_t>  ram, regs;
     std::vector<uint16_t> stack;
@@ -69,6 +69,8 @@ public:
     uint16_t             i_reg = 0;                    // index register
     uint8_t              sp    = 0;                    // stack pointer
     std::atomic<uint8_t> dt = 0, st = 0;               // delay and sound timers
+
+    std::atomic<bool> working = true;
 
     std::shared_ptr<IDisplayDriver>  display_driver;
     std::shared_ptr<IKeyboardDriver> keyboard_driver;
@@ -89,17 +91,25 @@ private:
  * ==================
  */
 
-class IDisplayDriver {
+class IDriver {
+public:
+    virtual void shutdown() { working = false; }
+
+protected:
+    std::atomic<bool> working = true;
+};
+
+class IDisplayDriver : public IDriver {
 public:
     virtual void render(const std::vector<bool> &display) = 0;
 };
 
-class IKeyboardDriver {
+class IKeyboardDriver : public IDriver {
 public:
     virtual bool is_pressed(uint8_t key) = 0;
 };
 
-class ISoundDriver {
+class ISoundDriver : public IDriver {
 public:
     virtual void beep_for(uint32_t duration) = 0;
 };

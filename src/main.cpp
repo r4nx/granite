@@ -115,12 +115,16 @@ int main(int argc, char *argv[])
         return 1;
 
     // Work on the VM
-    std::atomic<bool> vm_working = true;
-    std::thread       vm_thread([vm, &vm_working] {
+    std::thread vm_thread([vm] {
         try {
-            while (vm_working && vm->work()) {
+            while (vm->working) {
+                vm->cycle();
                 std::this_thread::sleep_for(std::chrono::milliseconds(3));
             }
+
+            vm->display_driver->shutdown();
+            vm->keyboard_driver->shutdown();
+            vm->sound_driver->shutdown();
         }
         catch (const std::runtime_error &ex) {
             print_msg(
@@ -131,7 +135,8 @@ int main(int argc, char *argv[])
 
     display_driver->work();
 
-    vm_working = false;
+    // Shutdown the VM if display driver finishes its work
+    vm->working = false;
     vm_thread.join();
 
     return 0;

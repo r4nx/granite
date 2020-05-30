@@ -69,18 +69,21 @@ ChipVM::ChipVM(
     std::copy(font.cbegin(), font.cend(), ram.begin());
 }
 
-bool ChipVM::work()
+void ChipVM::cycle()
 {
-    if (pc + sizeof(instr_t) >= ram.size())
-        return false;
+    if (!working)
+        return;
+
+    if (pc + sizeof(instr_t) >= ram.size()) {
+        working = false;
+        return;
+    }
 
     const instr_t instr = fetch_instruction();
     inc_pc();
 
     process_instruction(instr);
     display_driver->render(display);
-
-    return true;
 }
 
 void ChipVM::inc_pc() { pc += sizeof(instr_t); }
