@@ -26,7 +26,6 @@
 #include <cstddef>
 #include <cstdint>
 #include <functional> // std::ref
-#include <iostream>   // debugging
 #include <stdexcept>
 #include <thread>
 #include <vector>
@@ -52,9 +51,6 @@ void ChipVM::process_instruction(const instr_t instr)
                         throw std::runtime_error("Stack underflow");
                     }
                     break;
-
-                default:
-                    goto unk_instruction;
             }
             break;
 
@@ -192,9 +188,6 @@ void ChipVM::process_instruction(const instr_t instr)
                     regs[reg_x] <<= 1;
                     break;
                 }
-
-                default:
-                    goto unk_instruction;
             }
             break;
         }
@@ -211,9 +204,6 @@ void ChipVM::process_instruction(const instr_t instr)
                         inc_pc();
                     break;
                 }
-
-                default:
-                    goto unk_instruction;
             }
             break;
 
@@ -323,9 +313,6 @@ void ChipVM::process_instruction(const instr_t instr)
                     if (!keyboard_driver->is_pressed(regs[reg]))
                         inc_pc();
                     break;
-
-                default:
-                    goto unk_instruction;
             }
             break;
         }
@@ -343,12 +330,6 @@ void ChipVM::process_instruction(const instr_t instr)
                 // LD Vx, K (TO-DO)
                 case 0x0A:
                     break;
-
-                /*
-                 * It seems that timers are broken, as delay timer didn't pass
-                 * some kind of test and Tetris didn't work correctly. I hope
-                 * I'll fix them some day. TO-DO.
-                 */
 
                 // LD DT, Vx
                 case 0x15:
@@ -472,16 +453,8 @@ void ChipVM::process_instruction(const instr_t instr)
                     std::copy_n(ram.begin() + i_reg, regs_count, regs.begin());
                     break;
                 }
-
-                default:
-                    goto unk_instruction;
             }
             break;
         }
-
-        default:
-        unk_instruction:
-            std::cout << "[Debug] Unknown instruction: " << std::hex << instr
-                      << std::endl;
     }
 }

@@ -22,7 +22,6 @@
 #include <climits>
 #include <cstddef>
 #include <cstdint>
-#include <iostream> // debugging
 #include <memory>
 #include <random>
 #include <stdexcept>
@@ -77,11 +76,6 @@ bool ChipVM::work()
 
     const instr_t instr = fetch_instruction();
     inc_pc();
-
-    /*
-    std::cout << "PC: " << std::hex << pc << " | Instruction: " << instr
-              << std::endl;
-    */
 
     process_instruction(instr);
     display_driver->render(display);
