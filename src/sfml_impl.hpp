@@ -23,6 +23,7 @@
 
 #include <SFML/Graphics.hpp>
 
+#include <cstdint>
 #include <memory>
 #include <mutex>
 #include <string>
@@ -54,6 +55,11 @@ private:
 
     std::vector<sf::RectangleShape> pixels;
     std::mutex                      render_mutex;
+};
+
+class KeyboardDriver : public IKeyboardDriver {
+public:
+    bool is_pressed(uint8_t key) override;
 };
 } // namespace SFMLImpl
 

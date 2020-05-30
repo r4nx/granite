@@ -18,6 +18,8 @@
 
 #include "sfml_impl.hpp"
 
+#include <array>
+#include <cstdint>
 #include <memory>
 #include <mutex>
 #include <stdexcept>
@@ -61,7 +63,7 @@ void DisplayDriver::work()
     }
 }
 
-void SFMLImpl::DisplayDriver::render(const std::vector<bool> &display)
+void DisplayDriver::render(const std::vector<bool> &display)
 {
     std::vector<sf::RectangleShape> temp_pixels;
     sf::Vector2f                    pixel_size{scale, scale};
@@ -84,4 +86,36 @@ void SFMLImpl::DisplayDriver::render(const std::vector<bool> &display)
         std::scoped_lock lk(render_mutex);
         temp_pixels.swap(pixels);
     }
+}
+
+// ----------------------------------------------------------------------------
+
+using KB = sf::Keyboard;
+
+const static std::array<KB::Key, 16> key_mapping{
+    KB::Numpad0,  // 0
+    KB::Numpad7,  // 1
+    KB::Numpad8,  // 2
+    KB::Numpad9,  // 3
+    KB::Numpad4,  // 4
+    KB::Numpad5,  // 5
+    KB::Numpad6,  // 6
+    KB::Numpad1,  // 7
+    KB::Numpad2,  // 8
+    KB::Numpad3,  // 9
+    KB::Divide,   // A
+    KB::Multiply, // B
+    KB::Subtract, // C
+    KB::Add,      // D
+    KB::Equal,    // E
+    KB::Period};  // F
+
+bool KeyboardDriver::is_pressed(uint8_t key)
+{
+    if (key >= key_mapping.size())
+        throw std::runtime_error(
+            "Key was not found in mapping (index: " + std::to_string(key)
+            + ")");
+
+    return sf::Keyboard::isKeyPressed(key_mapping[key]);
 }

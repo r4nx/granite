@@ -106,7 +106,7 @@ int main(int argc, char *argv[])
         "granite",
         dim,
         static_cast<float>(scale));
-    auto keyboard_driver = std::make_shared<WindowsImpl::KeyboardDriver>();
+    auto keyboard_driver = std::make_shared<SFMLImpl::KeyboardDriver>();
     auto sound_driver    = std::make_shared<WindowsImpl::SoundDriver>();
     auto vm =
         std::make_shared<ChipVM>(display_driver, keyboard_driver, sound_driver);
