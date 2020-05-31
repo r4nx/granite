@@ -31,6 +31,13 @@
 #include <vector>
 
 using namespace std::chrono;
+using instr_t = ChipVM::instr_t;
+
+uint16_t decode_addr(instr_t instr) { return instr & 0xFFF; }
+uint8_t  decode_reg_x(instr_t instr) { return (instr & 0x0F00) >> 8; }
+uint8_t  decode_reg_y(instr_t instr) { return (instr & 0x00F0) >> 4; }
+uint8_t  decode_imm(instr_t instr) { return instr & 0x00FF; }
+uint8_t  decode_nibble(instr_t instr) { return instr & 0x000F; }
 
 void ChipVM::process_instruction(const instr_t instr)
 {
@@ -56,14 +63,14 @@ void ChipVM::process_instruction(const instr_t instr)
 
         // JP addr
         case 0x1:
-            pc = instr & 0x0FFF;
+            pc = decode_addr(instr);
             break;
 
         // CALL addr
         case 0x2:
             try {
                 stack.at(++sp) = pc;
-                pc             = instr & 0x0FFF;
+                pc             = decode_addr(instr);
             }
             catch (const std::out_of_range &) {
                 throw std::runtime_error("Stack overflow");
@@ -73,8 +80,8 @@ void ChipVM::process_instruction(const instr_t instr)
         // SE Vx, byte
         case 0x3:
         {
-            const uint8_t reg  = (instr & 0x0F00) >> 8;
-            const uint8_t data = instr & 0x00FF;
+            const uint8_t reg  = decode_reg_x(instr);
+            const uint8_t data = decode_imm(instr);
 
             if (regs[reg] == data)
                 inc_pc();
@@ -84,8 +91,8 @@ void ChipVM::process_instruction(const instr_t instr)
         // SNE Vx, byte
         case 0x4:
         {
-            const uint8_t reg  = (instr & 0x0F00) >> 8;
-            const uint8_t data = instr & 0x00FF;
+            const uint8_t reg  = decode_reg_x(instr);
+            const uint8_t data = decode_imm(instr);
 
             if (regs[reg] != data)
                 inc_pc();
@@ -95,8 +102,8 @@ void ChipVM::process_instruction(const instr_t instr)
         // SE Vx, Vy
         case 0x5:
         {
-            const uint8_t reg_x = (instr & 0x0F00) >> 8,
-                          reg_y = (instr & 0x00F0) >> 4;
+            const uint8_t reg_x = decode_reg_x(instr),
+                          reg_y = decode_reg_y(instr);
 
             if (regs[reg_x] == regs[reg_y])
                 inc_pc();
@@ -106,8 +113,8 @@ void ChipVM::process_instruction(const instr_t instr)
         // LD Vx, byte
         case 0x6:
         {
-            const uint8_t reg  = (instr & 0x0F00) >> 8;
-            const uint8_t data = instr & 0x00FF;
+            const uint8_t reg  = decode_reg_x(instr);
+            const uint8_t data = decode_imm(instr);
 
             regs[reg] = data;
             break;
@@ -116,8 +123,8 @@ void ChipVM::process_instruction(const instr_t instr)
         // ADD Vx, byte
         case 0x7:
         {
-            const uint8_t reg  = (instr & 0x0F00) >> 8;
-            const uint8_t data = instr & 0x00FF;
+            const uint8_t reg  = decode_reg_x(instr);
+            const uint8_t data = decode_imm(instr);
 
             regs[reg] += data;
             break;
@@ -126,8 +133,8 @@ void ChipVM::process_instruction(const instr_t instr)
         // Registers operations
         case 0x8:
         {
-            const uint8_t reg_x = (instr & 0x0F00) >> 8,
-                          reg_y = (instr & 0x00F0) >> 4;
+            const uint8_t reg_x = decode_reg_x(instr),
+                          reg_y = decode_reg_y(instr);
 
             switch (instr & 0x000F) {
                 // LD Vx, Vy
@@ -178,7 +185,7 @@ void ChipVM::process_instruction(const instr_t instr)
                     regs[reg_x] = regs[reg_y] - regs[reg_x];
                     break;
 
-                // SHL
+                // SHL Vx
                 case 0xE:
                 {
                     constexpr uint8_t msb_mask =
@@ -197,8 +204,8 @@ void ChipVM::process_instruction(const instr_t instr)
                 // SNE Vx, Vy
                 case 0x0:
                 {
-                    const uint8_t reg_x = (instr & 0x0F00) >> 8,
-                                  reg_y = (instr & 0x00F0) >> 4;
+                    const uint8_t reg_x = decode_reg_x(instr),
+                                  reg_y = decode_reg_y(instr);
 
                     if (regs[reg_x] != regs[reg_y])
                         inc_pc();
@@ -209,19 +216,19 @@ void ChipVM::process_instruction(const instr_t instr)
 
         // LD I, addr
         case 0xA:
-            i_reg = instr & 0x0FFF;
+            i_reg = decode_addr(instr);
             break;
 
         // JP V0, addr
         case 0xB:
-            pc = regs[0x0] + (instr & 0x0FFF);
+            pc = regs[0x0] + decode_addr(instr);
             break;
 
         // RND Vx, byte
         case 0xC:
         {
-            const uint8_t reg  = (instr & 0x0F00) >> 8;
-            const uint8_t data = instr & 0x00FF;
+            const uint8_t reg  = decode_reg_x(instr);
+            const uint8_t data = decode_imm(instr);
 
             std::uniform_int_distribution<> dis(0, 255);
 
@@ -232,9 +239,9 @@ void ChipVM::process_instruction(const instr_t instr)
         // DRW Vx, Vy, nibble
         case 0xD:
         {
-            const uint8_t reg_x = (instr & 0x0F00) >> 8,
-                          reg_y = (instr & 0x00F0) >> 4;
-            const uint8_t count = instr & 0x000F;
+            const uint8_t reg_x = decode_reg_x(instr),
+                          reg_y = decode_reg_y(instr),
+                          count = decode_nibble(instr);
 
             uint8_t x = regs[reg_x], y = regs[reg_y];
 
@@ -300,7 +307,7 @@ void ChipVM::process_instruction(const instr_t instr)
 
         case 0xE:
         {
-            const uint8_t reg = (instr & 0x0F00) >> 8;
+            const uint8_t reg = decode_reg_x(instr);
 
             switch (instr & 0x00FF) {
                 // SKP Vx
@@ -320,7 +327,7 @@ void ChipVM::process_instruction(const instr_t instr)
 
         case 0xF:
         {
-            const uint8_t reg = (instr & 0x0F00) >> 8;
+            const uint8_t reg = decode_reg_x(instr);
 
             switch (instr & 0x00FF) {
                 // LD Vx, DT

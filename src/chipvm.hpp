@@ -40,13 +40,13 @@ enum {
 class IDisplayDriver;
 
 class ChipVM {
-    using instr_t = uint16_t;
-
     friend class IDisplayDriver;
     friend class IKeyboardDriver;
     friend class ISoundDriver;
 
 public:
+    using instr_t = uint16_t;
+
     ChipVM(
         std::shared_ptr<IDisplayDriver>  display_driver_,
         std::shared_ptr<IKeyboardDriver> keyboard_driver_,
