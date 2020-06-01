@@ -33,11 +33,11 @@
 using namespace std::chrono;
 using instr_t = ChipVM::instr_t;
 
-uint16_t decode_addr(instr_t instr) { return instr & 0xFFF; }
-uint8_t  decode_reg_x(instr_t instr) { return (instr & 0x0F00) >> 8; }
-uint8_t  decode_reg_y(instr_t instr) { return (instr & 0x00F0) >> 4; }
-uint8_t  decode_imm(instr_t instr) { return instr & 0x00FF; }
-uint8_t  decode_nibble(instr_t instr) { return instr & 0x000F; }
+uint16_t decode_addr(instr_t instr) noexcept { return instr & 0xFFF; }
+uint8_t  decode_reg_x(instr_t instr) noexcept { return (instr & 0x0F00) >> 8; }
+uint8_t  decode_reg_y(instr_t instr) noexcept { return (instr & 0x00F0) >> 4; }
+uint8_t  decode_imm(instr_t instr) noexcept { return instr & 0x00FF; }
+uint8_t  decode_nibble(instr_t instr) noexcept { return instr & 0x000F; }
 
 void ChipVM::process_instruction(const instr_t instr)
 {

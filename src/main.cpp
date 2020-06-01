@@ -51,8 +51,8 @@ bool load_image(std::shared_ptr<ChipVM> vm, const std::string &file_name)
         image_file.open(file_name, std::ios::binary | std::ios::ate);
 
         // Check whether the image size is less than RAM size
-        auto               ram_size   = vm->ram.size() * sizeof(ram_cell_t);
-        decltype(ram_size) image_size = image_file.tellg();
+        const auto               ram_size = vm->ram.size() * sizeof(ram_cell_t);
+        const decltype(ram_size) image_size = image_file.tellg();
 
         if (image_size > ram_size - C8Consts::USER_SPACE) {
             print_msg("Image doesn't fit the RAM.", MessageType::error);
@@ -96,7 +96,7 @@ int main(int argc, char *argv[])
         return 0;
     }
 
-    unsigned             scale = 10;
+    const unsigned       scale = 10;
     SFMLImpl::Dimensions dim{
         C8Consts::DISPLAY_WIDTH * scale,
         C8Consts::DISPLAY_HEIGHT * scale};

@@ -77,10 +77,11 @@ public:
     std::shared_ptr<ISoundDriver>    sound_driver;
 
 private:
-    void                        inc_pc();
-    instr_t                     fetch_instruction();
-    void                        process_instruction(instr_t instr);
-    decltype(display)::iterator get_display_pixel(uint8_t x, uint8_t y);
+    void    inc_pc() noexcept;
+    instr_t fetch_instruction() const noexcept;
+    void    process_instruction(instr_t instr);
+    decltype(display)::iterator
+    get_display_pixel(uint8_t x, uint8_t y) noexcept;
 
     std::unique_ptr<std::mt19937> random_gen;
 };

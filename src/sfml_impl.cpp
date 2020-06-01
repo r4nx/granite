@@ -98,7 +98,7 @@ void DisplayDriver::subscribe_for_key_press(key_press_callback_t callback)
 void DisplayDriver::render(const std::vector<bool> &display)
 {
     std::vector<sf::RectangleShape> temp_pixels;
-    sf::Vector2f                    pixel_size{scale, scale};
+    const sf::Vector2f              pixel_size{scale, scale};
 
     for (std::size_t i = 0; i < display.size(); ++i) {
         if (!display[i])
@@ -124,7 +124,8 @@ void DisplayDriver::render(const std::vector<bool> &display)
 
 void KeyboardDriver::press_callback(sf::Keyboard::Key key)
 {
-    auto key_it = std::find(key_mapping.cbegin(), key_mapping.cend(), key);
+    const auto key_it =
+        std::find(key_mapping.cbegin(), key_mapping.cend(), key);
 
     if (key_it == key_mapping.end())
         return;

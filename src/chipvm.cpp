@@ -86,9 +86,13 @@ void ChipVM::cycle()
     display_driver->render(display);
 }
 
-void ChipVM::inc_pc() { pc += sizeof(instr_t); }
+void ChipVM::inc_pc() noexcept { pc += sizeof(instr_t); }
 
 /*
+ * Attention: If you want this to be really noexcept, before calling
+ * you have to ensure that program counter + instruction length
+ * doesn't go beyond the RAM.
+ *
  * I tried to make it as portable as possible - currently
  * this should work on both LSB and MSB systems.
  *
@@ -96,21 +100,21 @@ void ChipVM::inc_pc() { pc += sizeof(instr_t); }
  * a byte N - 1 positions left and perform set that
  * byte in the resulting number.
  */
-ChipVM::instr_t ChipVM::fetch_instruction()
+ChipVM::instr_t ChipVM::fetch_instruction() const noexcept
 {
     instr_t               instr{};
     constexpr std::size_t instr_size = sizeof instr;
 
     for (std::size_t i = 0; i < instr_size; ++i)
-        instr |= ram.at(pc + i) << ((instr_size - i - 1) * CHAR_BIT);
+        instr |= ram[pc + i] << ((instr_size - i - 1) * CHAR_BIT);
 
     return instr;
 }
 
 decltype(ChipVM::display)::iterator
-ChipVM::get_display_pixel(uint8_t x, uint8_t y)
+ChipVM::get_display_pixel(uint8_t x, uint8_t y) noexcept
 {
-    decltype(display)::size_type index = y * C8Consts::DISPLAY_WIDTH + x;
+    const decltype(display)::size_type index = y * C8Consts::DISPLAY_WIDTH + x;
 
     return index < display.size() ? display.begin() + index : display.end();
 }
