@@ -96,16 +96,8 @@ int main(int argc, char *argv[])
         return 0;
     }
 
-    const unsigned       scale = 10;
-    SFMLImpl::Dimensions dim{
-        C8Consts::DISPLAY_WIDTH * scale,
-        C8Consts::DISPLAY_HEIGHT * scale};
-
     // Initialize drivers
-    auto display_driver = std::make_shared<SFMLImpl::DisplayDriver>(
-        "granite",
-        dim,
-        static_cast<float>(scale));
+    auto display_driver  = std::make_shared<SFMLImpl::DisplayDriver>("granite");
     auto keyboard_driver = std::make_shared<SFMLImpl::KeyboardDriver>();
 
     display_driver->subscribe_for_key_press(std::bind(
@@ -127,7 +119,7 @@ int main(int argc, char *argv[])
         try {
             while (vm->working) {
                 vm->cycle();
-                std::this_thread::sleep_for(std::chrono::milliseconds(3));
+                std::this_thread::sleep_for(std::chrono::milliseconds(1));
             }
 
             vm->display_driver->shutdown();

@@ -31,19 +31,29 @@
 #include <vector>
 
 namespace SFMLImpl {
-struct Dimensions {
-    unsigned width;
-    unsigned height;
+
+struct DisplayOptions {
+    float    scale  = 10.0f;
+    uint32_t width  = C8Consts::DISPLAY_WIDTH * static_cast<unsigned>(scale);
+    uint32_t height = C8Consts::DISPLAY_HEIGHT * static_cast<unsigned>(scale);
+
+    // RGBA format
+    uint32_t background_color = 0xF5F5F5FF;
+    uint32_t pixel_color      = 0x37474FFF;
 };
 
 class DisplayDriver : public IDisplayDriver {
     using key_press_callback_t = std::function<void(sf::Keyboard::Key)>;
 
 public:
+    /*
+     * Default options are such that width and height are set to exactly fit
+     * CHIP-8 display, and background and pixel colors are some pretty colors
+     * (I did my best though).
+     */
     DisplayDriver(
-        const std::string &title,
-        Dimensions         dim    = {800, 600},
-        float              scale_ = 10);
+        const std::string &   title,
+        const DisplayOptions &options = DisplayOptions{});
 
     /*
      * Blocking function, that processes event loop and rendering
@@ -54,7 +64,8 @@ public:
     void render(const std::vector<bool> &display) override;
 
 private:
-    float            scale;
+    const float      scale;
+    const sf::Color  background_color, pixel_color;
     sf::RenderWindow window;
 
     std::vector<sf::RectangleShape> pixels;

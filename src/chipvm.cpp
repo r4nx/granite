@@ -27,6 +27,7 @@
 #include <stdexcept>
 #include <vector>
 
+namespace {
 const std::vector<uint8_t> font{
     0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
     0x20, 0x60, 0x20, 0x20, 0x70, // 1
@@ -45,6 +46,7 @@ const std::vector<uint8_t> font{
     0xF0, 0x80, 0xF0, 0x80, 0xF0, // E
     0xF0, 0x80, 0xF0, 0x80, 0x80  // F
 };
+}
 
 ChipVM::ChipVM(
     std::shared_ptr<IDisplayDriver>  display_driver_,

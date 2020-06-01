@@ -29,7 +29,8 @@
 using namespace SFMLImpl;
 using KB = sf::Keyboard;
 
-const static std::array<KB::Key, 16> key_mapping{
+namespace {
+const std::array<KB::Key, 16> key_mapping{
     KB::Numpad0, // 0
     KB::Numpad7, // 1
     KB::Numpad8, // 2
@@ -46,14 +47,16 @@ const static std::array<KB::Key, 16> key_mapping{
     KB::S,       // D
     KB::Q,       // E
     KB::E};      // F
+}
 
 DisplayDriver::DisplayDriver(
-    const std::string &window_title,
-    Dimensions         dim,
-    float              scale_)
-    : scale(scale_),
+    const std::string &   window_title,
+    const DisplayOptions &options)
+    : scale(options.scale),
+      background_color(options.background_color),
+      pixel_color(options.pixel_color),
       window(
-          sf::VideoMode(dim.width, dim.height),
+          sf::VideoMode(options.width, options.height),
           window_title,
           sf::Style::Titlebar | sf::Style::Close)
 {
@@ -78,7 +81,7 @@ void DisplayDriver::work()
             }
         }
 
-        window.clear(sf::Color::White);
+        window.clear(background_color);
 
         {
             std::scoped_lock lk(render_mutex);
@@ -108,7 +111,7 @@ void DisplayDriver::render(const std::vector<bool> &display)
                           y = i / C8Consts::DISPLAY_WIDTH;
 
         sf::RectangleShape pixel(pixel_size);
-        pixel.setFillColor(sf::Color::Black);
+        pixel.setFillColor(pixel_color);
         pixel.setPosition({x * scale, y * scale});
 
         temp_pixels.push_back(pixel);
