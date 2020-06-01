@@ -110,11 +110,9 @@ void DisplayDriver::render(const std::vector<bool> &display)
         const std::size_t x = i % C8Consts::DISPLAY_WIDTH,
                           y = i / C8Consts::DISPLAY_WIDTH;
 
-        sf::RectangleShape pixel(pixel_size);
+        auto &pixel = temp_pixels.emplace_back(pixel_size);
         pixel.setFillColor(pixel_color);
         pixel.setPosition({x * scale, y * scale});
-
-        temp_pixels.push_back(pixel);
     }
 
     {
