@@ -2,6 +2,9 @@
 
 Yet another CHIP-8 emulator, written in C++.
 
+### Video demonstration
+[![Video demonstration](https://img.youtube.com/vi/Xar5HV6Qle4/0.jpg)](https://www.youtube.com/watch?v=Xar5HV6Qle4)
+
 ### Project structure
 Currently, the whole interpreter is implemented in the `chipvm.cpp` and `instructions.cpp` files and it's 100% cross-platform. `chipvm.hpp` declares interfaces for drivers - modules, that do key scanning, rendering and other platform-dependent stuff. granite uses SFML library for rendering.
 
