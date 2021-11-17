@@ -1,6 +1,6 @@
 # granite
 
-Yet another CHIP-8 emulator, written in C++.
+Yet another [CHIP-8](https://en.wikipedia.org/wiki/CHIP-8) emulator, written in C++.
 
 ### Video demonstration
 [![Video demonstration](https://img.youtube.com/vi/Xar5HV6Qle4/0.jpg)](https://www.youtube.com/watch?v=Xar5HV6Qle4)

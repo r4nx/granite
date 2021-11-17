@@ -21,7 +21,6 @@
 #include "chipvm.hpp"
 
 #include <algorithm>
-#include <bitset>
 #include <chrono>
 #include <cstddef>
 #include <cstdint>
